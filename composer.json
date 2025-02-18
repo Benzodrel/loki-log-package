@@ -1,0 +1,22 @@
+{
+    "name": "bolt-system/yii2-loki-log",
+    "description": "Yii2 component for logging in Loki",
+    "require": {
+        "yiisoft/yii2": "^2.0.50",
+        "php": "^8.0.0",
+        "cebe/yii2-loki-log-target": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "BoltSystem\\Yii2LokiLog\\log\\action\\": "src/log/action/",
+            "BoltSystem\\Yii2LokiLog\\log\\error\\": "src/log/error/",
+            "BoltSystem\\Yii2LokiLog\\log\\event\\": "src/event/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Benzodrel"
+        }
+    ],
+    "minimum-stability": "dev"
+}
