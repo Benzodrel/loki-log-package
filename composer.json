@@ -20,5 +20,5 @@
             "name": "Benzodrel"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
