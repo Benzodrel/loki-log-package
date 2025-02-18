@@ -1,5 +1,5 @@
 <?php
-namespace app\components\log\target;
+namespace BoltSystem\Yii2LokiLog\log\target;
 
 use yii\helpers\ArrayHelper;
 use yii\log\Logger;
