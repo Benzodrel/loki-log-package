@@ -1,6 +1,6 @@
 <?php
 
-namespace app\components\log\error;
+namespace BoltSystem\Yii2LokiLog\log\error;
 
 use Yii;
 use yii\helpers\ArrayHelper;

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\components\log\action;
+namespace BoltSystem\Yii2LokiLog\log\action;
 
 use Yii;
 

@@ -10,7 +10,8 @@
         "psr-4": {
             "BoltSystem\\Yii2LokiLog\\log\\action\\": "src/log/action/",
             "BoltSystem\\Yii2LokiLog\\log\\error\\": "src/log/error/",
-            "BoltSystem\\Yii2LokiLog\\log\\event\\": "src/event/"
+            "BoltSystem\\Yii2LokiLog\\log\\event\\": "src/log/event/",
+            "BoltSystem\\Yii2LokiLog\\log\\": "src/log/"
         }
     },
     "authors": [

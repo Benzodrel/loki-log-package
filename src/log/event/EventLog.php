@@ -1,6 +1,6 @@
 <?php
 
-namespace app\components\log\event;
+namespace BoltSystem\Yii2LokiLog\log\event;
 
 use app\models\EventLog as EventLegacy;
 use Yii;
