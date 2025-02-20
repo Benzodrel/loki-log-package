@@ -6,19 +6,19 @@ use app\models\EventLog as EventLegacy;
 use Yii;
 use yii\base\BaseObject;
 
-final class EventLog extends BaseObject
+final class EventLog extends EventLegacy
 {
     public const LOG_LOKI = 'loki';
     public const LOG_DB   = 'db';
 
     public function __construct($config = [])
     {
-        parent::__construct($config);
+        BaseObject::__construct($config);
     }
 
     public function init()
     {
-        parent::init();
+        BaseObject::init();
     }
 
     public static function getDriverName()

@@ -147,7 +147,7 @@ class ErrorHandler extends BaseErrorHandler
             $level = false;
 
             if ($exception instanceof \yii\web\HttpException || $exception instanceof \yii\web\NotFoundHttpException) {
-                $level = Yii::$app->errorLog::LEVEL_HTTP_EXCEPTION;
+                $level = 'http exception';
             }
 
             $errID = Yii::$app->errorLog::RegisterErrorByErrorException($exception, $level);
