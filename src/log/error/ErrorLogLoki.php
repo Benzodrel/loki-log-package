@@ -51,7 +51,7 @@ class ErrorLogLoki extends \app\models\ErrorLog
             'line'        => isset($meta['line']) ?? $meta['line'],
             'log_type'    => 'error',
         ];
-        if (self::mapPHPLevel($level) == static::LEVEL_NOTICE || self::mapPHPLevel($level) == static::LEVEL_WARNING){
+        if (self::mapPHPLevel($level) == (defined(static::LEVEL_NOTICE)?static::LEVEL_NOTICE:'notice') || self::mapPHPLevel($level) == (defined(static::LEVEL_WARNING)?static::LEVEL_WARNING:'warning')){
             Yii::warning($err, $level);
         } else {
             Yii::error($err, $level);
@@ -124,7 +124,7 @@ class ErrorLogLoki extends \app\models\ErrorLog
             'log_type'    => 'error',
             ];
 
-        if (self::mapPHPLevel($level) == static::LEVEL_NOTICE || self::mapPHPLevel($level) == static::LEVEL_WARNING){
+        if (self::mapPHPLevel($level) == (defined(static::LEVEL_NOTICE)?static::LEVEL_NOTICE:'notice') || self::mapPHPLevel($level) == (defined(static::LEVEL_WARNING)?static::LEVEL_WARNING:'warning')){
             Yii::warning($errorLine, $level);
         } else {
             Yii::error($errorLine, $level);
