@@ -79,6 +79,7 @@ class ErrorHandler extends BaseErrorHandler
             header('Location: ' . Url::to(['/backend/error-log/page-corrupted', 'id' => $errID]));
             exit;
         }
+        header('Location: ' . Url::to(['/error/page-corrupted', 'id' => $errID, 'err_obj' => $errObj]));
     }
 
     public function handleFatalError()

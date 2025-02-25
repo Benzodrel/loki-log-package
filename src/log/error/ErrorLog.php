@@ -22,6 +22,13 @@ final class ErrorLog extends ErrorLegacy
         BaseObject::init();
     }
 
+    public function bootstrap($app)
+    {
+        $app->controllerMap['error'] = [
+            'class' => \BoltSystem\Yii2LokiLog\log\controllers\ErrorController::class,
+        ];
+    }
+
     public static function getDriverName()
     {
         return Yii::$app->params['log'] ?? static::LOG_DB;

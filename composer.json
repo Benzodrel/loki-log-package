@@ -12,7 +12,8 @@
             "BoltSystem\\Yii2LokiLog\\log\\error\\": "src/log/error/",
             "BoltSystem\\Yii2LokiLog\\log\\event\\": "src/log/event/",
             "BoltSystem\\Yii2LokiLog\\log\\": "src/log/",
-            "BoltSystem\\Yii2LokiLog\\log\\target\\": "src/log/target/"
+            "BoltSystem\\Yii2LokiLog\\log\\target\\": "src/log/target/",
+            "BoltSystem\\Yii2LokiLog\\log\\controllers\\": "src/log/controllers/"
         }
     },
     "authors": [
