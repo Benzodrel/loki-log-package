@@ -130,7 +130,7 @@ class ErrorHandler extends BaseErrorHandler
                 return;
             }
 
-            if ($type == Yii::$app->errorLog::LEVEL_WARNING || $type == Yii::$app->errorLog::LEVEL_NOTICE) {
+            if ($type == 'warning' || $type == 'notice') {
                 return;
             }
 

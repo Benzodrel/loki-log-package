@@ -7,7 +7,7 @@ use app\models\ErrorLog as ErrorLegacy;
 use Yii;
 use yii\base\BaseObject;
 
-final class ErrorLog extends ErrorLegacy
+final class ErrorLog extends ErrorLegacy implements \yii\base\BootstrapInterface
 {
     public const LOG_LOKI = 'loki';
     public const LOG_DB   = 'db';

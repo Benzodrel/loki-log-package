@@ -4,11 +4,12 @@
 namespace BoltSystem\Yii2LokiLog\log\controllers;
 
 
+use app\controllers\backend\ErrorLogController;
 use app\models\backend\ErrorLogSearch;
 use app\models\dictionaries\ErrorLevel;
 use app\models\ErrorLog;
 
-class ErrorController
+class ErrorController extends ErrorLogController
 {
     public $rules = [
         [
