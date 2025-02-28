@@ -7,6 +7,7 @@ use yii\base\BaseObject;
 use yii\base\UserException;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
+use Yii;
 
 class ErrorLogDb extends \BoltSystem\Yii2Logs\log\base\model\BaseModel
 {
@@ -198,7 +199,7 @@ class ErrorLogDb extends \BoltSystem\Yii2Logs\log\base\model\BaseModel
             return 0;
         }
 
-        return Yii::$app->user->id ?: 0;
+        return \Yii::$app->user->id ?: 0;
     }
 
     public static function RegisterError($code = '0', $description = '', $level = self::LEVEL_NOTICE, $meta = [])
