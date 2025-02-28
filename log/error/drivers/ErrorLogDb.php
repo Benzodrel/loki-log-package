@@ -8,7 +8,7 @@ use yii\base\UserException;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
 
-class ErrorLogDb extends \app\models\base\BaseModel
+class ErrorLogDb extends \BoltSystem\Yii2Logs\log\base\model\BaseModel
 {
     public static function settingForIndex()
     {

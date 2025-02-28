@@ -6,9 +6,37 @@ namespace BoltSystem\Yii2Logs\log\event\drivers;
 
 use yii\base\BaseObject;
 
-class EventLogDb extends \app\models\base\BaseModel
+class EventLogDb extends \BoltSystem\Yii2Logs\log\base\model\BaseModel
 {
-    use \app\models\base\TraitMetaFieldsSetterGetter;
+    public const STATUS_ERROR   = 0;
+    public const STATUS_SUCCESS = 1;
+    public const STATUS_BOTH    = 2;
+
+    public function __get($name)
+    {
+        $metaFields = $this->metaFields();
+
+        if ($metaFields && is_array($metaFields)) {
+            if (isset($metaFields[$name])) {
+                return $this->getMetaFieldValue($name);
+            }
+        }
+
+        return parent::__get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        $metaFields = $this->metaFields();
+
+        if ($metaFields && is_array($metaFields)) {
+            if (isset($metaFields[$name])) {
+                $this->setMetaFieldValue($name, $value);
+            }
+        }
+
+        return parent::__set($name, $value);
+    }
 
     public static function getMapStatuses()
     {
@@ -26,7 +54,7 @@ class EventLogDb extends \app\models\base\BaseModel
 
     public static function Add($type, $to_list, $data = [], $settings = [], $info = [])
     {
-        $newLog = new EventLog();
+        $newLog = new EventLogDb();
 
         $newLog->type     = $type;
         $newLog->to_list  = $to_list;
@@ -47,10 +75,10 @@ class EventLogDb extends \app\models\base\BaseModel
             }
         }
 
-        if (!$allSuccess && !$oneSuccess) $newLog->status_id = EventLog::STATUS_ERROR;
-        if (!$allSuccess && $oneSuccess)  $newLog->status_id = EventLog::STATUS_BOTH;
-        if ($allSuccess && $oneSuccess)   $newLog->status_id = EventLog::STATUS_SUCCESS;
-        if (!count($to_list))           $newLog->status_id = EventLog::STATUS_ERROR;
+        if (!$allSuccess && !$oneSuccess) $newLog->status_id = EventLogDb::STATUS_ERROR;
+        if (!$allSuccess && $oneSuccess)  $newLog->status_id = EventLogDb::STATUS_BOTH;
+        if ($allSuccess && $oneSuccess)   $newLog->status_id = EventLogDb::STATUS_SUCCESS;
+        if (!count($to_list))           $newLog->status_id = EventLogDb::STATUS_ERROR;
 
         $newLog->save();
     }

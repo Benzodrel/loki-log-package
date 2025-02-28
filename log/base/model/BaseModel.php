@@ -4,7 +4,7 @@
 namespace BoltSystem\Yii2Logs\log\base\model;
 
 
-class BaseModel extends \app\components\db\ActiveRecord
+class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
 {
     public const ALLOW_STATUS = false;
 
@@ -24,41 +24,10 @@ class BaseModel extends \app\components\db\ActiveRecord
     public const TYPE_RELATION_SINGLE   = 'single';
     public const TYPE_RELATION_MULTIPLE = 'multiple';
 
-    protected $linkedFields = [];
-
-    public function setLinkedField($name, $value)
-    {
-        $this->linkedFields[$name] = $value;
-    }
-
-    public function getLinkedField($name)
-    {
-        $linkedSetup = $this->hasMethod('linkedFieldsSetup') ? $this->linkedFieldsSetup() : [];
-
-        if (array_key_exists($name, $this->linkedFields)) {
-            return $this->linkedFields[$name] ?: [];
-        }
-
-        if (isset($linkedSetup[$name])) {
-            list($linkClass, $linkField, $valueField) = $linkedSetup[$name];
-
-            return $linkClass::getLink($this->id, $linkField, $valueField);
-        }
-
-        $link = DictionaryLinked::getLink(
-            12,
-            $this->id,
-            static::getTypeForDictionaryLinked(),
-            $name
-        );
-
-        return array_map('intval', $link);
-    }
-
     public static function getClassByTypeModel($typeModel)
     {
         return match ($typeModel) {
-            default                                         => false,
+            default => false,
         };
     }
 
@@ -322,18 +291,6 @@ class BaseModel extends \app\components\db\ActiveRecord
                     ->where([$tech_name => $this->id])
                     ->apiUndeleted();
             }
-        } elseif ($type_id == BaseModel::TYPE_RELATION_MULTIPLE) {
-            $query = $modelClassName::find()
-                ->where([
-                    'id' => DictionaryLinked::find()->where([
-                        'type_id' => $modelClassName::getTypeForDictionaryLinked(),
-                        'title'   => $tech_name,
-                        'value'   => strval($this->id),
-                    ])->select('entity_id'),
-                ])
-                ->apiUndeleted();
-        } else {
-            throw new ErrorException('Unknown own relation type');
         }
 
         if ($execute) {
@@ -789,16 +746,6 @@ class BaseModel extends \app\components\db\ActiveRecord
                             $ownItem->{$tech_name} = 0;
                             $ownItem->save();
                         }
-                    } elseif ($type_id == BaseModel::TYPE_RELATION_MULTIPLE) {
-                        $linkList = DictionaryLinked::find()->where([
-                            'type_id' => $modelClassName::getTypeForDictionaryLinked(),
-                            'title'   => $tech_name,
-                            'value'   => $this->id . '',
-                        ])->all();
-
-                        foreach ($linkList as $link) {
-                            $link->delete();
-                        }
                     }
                 }
             } catch (Exception $ex) {
@@ -818,63 +765,11 @@ class BaseModel extends \app\components\db\ActiveRecord
         return true;
     }
 
-    public function afterFind()
-    {
-        parent::afterFind();
-
-        if ($this->hasMethod('linkedFieldsSetup')) {
-            $setup = $this->linkedFieldsSetup();
-
-            foreach ($setup as $key => $val) {
-                $this->linkedFields[$key] = $this->{$key};
-            }
-        }
-    }
-
     public function afterSave($insert, $changedAttributes)
     {
         $this->trigger(static::EVENT_AFTER_SAVE);
 
         parent::afterSave($insert, $changedAttributes);
-
-        $linkedSetup = $this->hasMethod('linkedFieldsSetup') ? $this->linkedFieldsSetup() : [];
-
-        foreach ($this->linkedFields as $name => $value) {
-            if (isset($linkedSetup[$name])) {
-                list($linkClass, $linkField, $valueField) = $linkedSetup[$name];
-
-                $linkClass::setLink($this->id, $linkField, $valueField, $value);
-            } else {
-                DictionaryLinked::setLink(
-                    12,
-                    $this->id,
-                    static::getTypeForDictionaryLinked(),
-                    $name,
-                    $value
-                );
-            }
-        }
-
-        if (!empty($this->slugFields()) && $this->hasAttribute('seo_alias')) {
-            $needSlug = false;
-            if ($insert) {
-                $needSlug = static::$slugAfterInsert;
-            } else {
-                if (static::$slugAfterUpdate) {
-                    foreach ($this->slugFields() as $field) {
-                        if (isset($changedAttributes[$field]) && $changedAttributes[$field] != $this->{$field}) {
-                            $needSlug = true;
-
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if ($needSlug) {
-                static::updateAll(['seo_alias' => $this->slug], ['id' => $this->id]);
-            }
-        }
 
         $this->refresh();
     }
@@ -1003,10 +898,6 @@ class BaseModel extends \app\components\db\ActiveRecord
         if ($_configuredFields) {
             foreach ($_configuredFields as $fieldName => $fieldConfig) {
                 if ($name === $fieldName) {
-                    if ($fieldConfig->link) {
-                        return $this->getLinkedField($name);
-                    }
-
                     break;
                 }
             }
@@ -1022,12 +913,6 @@ class BaseModel extends \app\components\db\ActiveRecord
         if ($_configuredFields) {
             foreach ($_configuredFields as $fieldName => $fieldConfig) {
                 if ($name === $fieldName) {
-                    if ($fieldConfig->link) {
-                        $this->setLinkedField($name, $value);
-
-                        return;
-                    }
-
                     break;
                 }
             }
@@ -1122,23 +1007,6 @@ class BaseModel extends \app\components\db\ActiveRecord
                 'typecastAfterFind'     => true,
             ],
         ];
-    }
-
-    public function linkedFieldsSetup(): array
-    {
-        if (!$this->_configuredFields) {
-            return [];
-        }
-
-        $links = [];
-
-        foreach ($this->_configuredFields as $fieldName => $fieldConfig) {
-            if ($fieldConfig->link) {
-                $links[$fieldName] = $fieldConfig->link;
-            }
-        }
-
-        return $links;
     }
 
     public function customFields()

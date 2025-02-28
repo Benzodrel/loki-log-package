@@ -1,7 +1,7 @@
 <?php
 
 
-namespace BoltSystem\Yii2Logs\log\error;
+namespace BoltSystem\Yii2Logs\log\error\handlers;
 
 use Yii;
 use yii\base\ErrorException;

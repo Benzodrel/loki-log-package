@@ -8,7 +8,7 @@ use app\controllers\backend\BaseController;
 use app\models\backend\ErrorLogSearch;
 use app\models\dictionaries\ErrorLevel;
 
-class LogsErrorController extends BaseController
+class LogsErrorController extends \BoltSystem\Yii2Logs\log\base\controllers\BaseController
 {
     public $rules = [
         [

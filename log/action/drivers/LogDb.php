@@ -6,7 +6,7 @@ namespace BoltSystem\Yii2Logs\log\action\drivers;
 use app\models\helpers\BackendView;
 use Yii;
 
-class LogDb extends \app\models\base\BaseModel
+class LogDb extends \BoltSystem\Yii2Logs\log\base\model\BaseModel
 {
     public static function settingForIndex()
     {

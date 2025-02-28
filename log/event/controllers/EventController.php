@@ -1,7 +1,7 @@
 <?php
 
 
-namespace BoltSystem\Yii2Logs\log\controllers;
+namespace BoltSystem\Yii2Logs\log\event\controllers;
 
 
 use app\controllers\backend\BaseController;
@@ -9,7 +9,7 @@ use app\models\backend\ErrorLogSearch;
 use app\models\dictionaries\ErrorLevel;
 use app\models\ErrorLog;
 
-class EventController  extends BaseController
+class EventController  extends \BoltSystem\Yii2Logs\log\base\controllers\BaseController
 {
     public $rules = [
         [
