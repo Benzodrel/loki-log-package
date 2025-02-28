@@ -1,19 +1,19 @@
 {
-    "name": "bolt-system/yii2-loki-log",
-    "description": "Yii2 component for logging in Loki",
+    "name": "bolt-system/yii2-logs",
+    "description": "Yii2 component for logging in Loki or database",
     "require": {
         "yiisoft/yii2": "^2.0.49",
         "php": "^8.0.0",
-        "cebe/yii2-loki-log-target": "^1.2"
+        "cebe/yii2-loki-log-target": "^1.2",
+        "ramsey/uuid": "^4.7.6"
     },
     "autoload": {
         "psr-4": {
-            "BoltSystem\\Yii2LokiLog\\log\\action\\": "src/log/action/",
-            "BoltSystem\\Yii2LokiLog\\log\\error\\": "src/log/error/",
-            "BoltSystem\\Yii2LokiLog\\log\\event\\": "src/log/event/",
-            "BoltSystem\\Yii2LokiLog\\log\\": "src/log/",
-            "BoltSystem\\Yii2LokiLog\\log\\target\\": "src/log/target/",
-            "BoltSystem\\Yii2LokiLog\\log\\controllers\\": "src/log/controllers/"
+            "BoltSystem\\Yii2Logs\\log\\action\\": "log/action/",
+            "BoltSystem\\Yii2Logs\\log\\error\\": "log/error/",
+            "BoltSystem\\Yii2Logs\\log\\event\\": "log/event/",
+            "BoltSystem\\Yii2Logs\\log\\": "log/",
+            "BoltSystem\\Yii2Logs\\log\\target\\": "log/target/"
         }
     },
     "authors": [
