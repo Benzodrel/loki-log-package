@@ -3,9 +3,6 @@
 
 namespace BoltSystem\Yii2Logs\log\base\controllers;
 
-
-use app\models\Log;
-use app\models\User;
 use BoltSystem\Yii2Logs\log\action\drivers\LogDb;
 
 class BaseController extends \yii\web\Controller

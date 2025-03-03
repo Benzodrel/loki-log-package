@@ -4,9 +4,8 @@
 namespace BoltSystem\Yii2Logs\log\error\controllers;
 
 
-use app\controllers\backend\BaseController;
-use app\models\backend\ErrorLogSearch;
-use app\models\dictionaries\ErrorLevel;
+use BoltSystem\Yii2Logs\log\error\drivers\ErrorLogDb;
+use BoltSystem\Yii2Logs\log\error\search\ErrorLogDbSearch;
 
 class LogsErrorController extends \BoltSystem\Yii2Logs\log\base\controllers\BaseController
 {
@@ -31,7 +30,7 @@ class LogsErrorController extends \BoltSystem\Yii2Logs\log\base\controllers\Base
     {
         try {
             if (\Yii::$app->user->can('admin')) {
-                return $this->render('/backend/error', [
+                return $this->render('@vendor/BoltSystem/Yii2Logs/log/error/views/error', [
                     'title'       => 'На странице произошла ошибка',
                     'description' => 'Информация об ошибке:',
                     'back_url'    => '$error->url',
@@ -40,7 +39,7 @@ class LogsErrorController extends \BoltSystem\Yii2Logs\log\base\controllers\Base
                     'error_info'  => 'ErrorLevel::getMapList()[$error->level]',
                 ]);
             } else {
-                return $this->render('/backend/error', [
+                return $this->render('@vendor/BoltSystem/Yii2Logs/log/error/views/error', [
                     'title'       => 'На странице произошла ошибка',
                     'description' => 'Попробуйте перейти в другой раздел. Если проблема повторится, свяжитесь с администрацией проекта и скопируйте им нижеследующую информацию об ошибке.',
                     'back_url'    => '$error->url',

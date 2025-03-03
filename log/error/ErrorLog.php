@@ -25,7 +25,7 @@ final class ErrorLog extends BaseObject
 
     public function bootstrap($app)
     {
-        $app->controllerMap['logs-error'] = [
+        $app->controllerMap['error'] = [
             'class' => \BoltSystem\Yii2Logs\log\error\controllers\LogsErrorController::class,
         ];
     }

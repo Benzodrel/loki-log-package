@@ -6,4 +6,4 @@
     <p><?= $description ?></p>
     <pre><?= $error_info ?></pre>
 
-    <pre><?php print_r( $error->asArray() ); ?></pre>
+    <pre><?php print_r( '$error->asArray()' ); ?></pre>
