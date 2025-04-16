@@ -8,6 +8,7 @@ use app\controllers\backend\BaseController;
 use app\models\backend\ErrorLogSearch;
 use app\models\dictionaries\ErrorLevel;
 use app\models\ErrorLog;
+use BoltSystem\Yii2Logs\log\event\drivers\EventLogDb;
 
 class EventController  extends \BoltSystem\Yii2Logs\log\base\controllers\BaseController
 {
@@ -24,12 +25,12 @@ class EventController  extends \BoltSystem\Yii2Logs\log\base\controllers\BaseCon
 
     public function getModel()
     {
-        return ErrorDb::class;
+        return EventLogDb::class;
     }
 
     public function getSearchModel()
     {
-        return ErrorDbSearch::class;
+        return EventLogDbSearch::class;
     }
 
     public function actionPageCorrupted($id = '0')

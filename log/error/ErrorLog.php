@@ -7,8 +7,9 @@ use BoltSystem\Yii2Logs\log\error\drivers\ErrorLogDb;
 use BoltSystem\Yii2Logs\log\error\drivers\ErrorLogLoki;
 use Yii;
 use yii\base\BaseObject;
+use yii\base\BootstrapInterface;
 
-final class ErrorLog extends BaseObject
+final class ErrorLog extends BaseObject implements BootstrapInterface
 {
     public const LOG_LOKI = 'loki';
     public const LOG_DB   = 'db';
@@ -25,9 +26,12 @@ final class ErrorLog extends BaseObject
 
     public function bootstrap($app)
     {
-        $app->controllerMap['logs-error'] = [
-            'class' => \BoltSystem\Yii2Logs\log\error\controllers\LogsErrorController::class,
-        ];
+        if($app instanceof \Yii\web\Application)
+        {
+            $app->controllerMap['logs-error'] = [
+                'class' => \BoltSystem\Yii2Logs\log\error\controllers\LogsErrorController::class,
+            ];
+        }
     }
 
     public static function getDriverName()

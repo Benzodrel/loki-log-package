@@ -3,27 +3,97 @@
 
 namespace BoltSystem\Yii2Logs\log\base\model;
 
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQueryInterface;
+use yii\db\ActiveQuery;
 
-class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
+class BaseModel extends \yii\db\ActiveRecord
 {
-    public const ALLOW_STATUS = false;
-
     public const EVENT_AFTER_SAVE = 'EVENT_AFTER_SAVE';
 
-    public const STATUS_ACTIVE   = 1;
-    public const STATUS_DEACTIVE = 2;
+    public const EVENT_BEFORE_DELETE = 'EVENT_BEFORE_DELETE';
+    public const EVENT_AFTER_RECOVER = 'EVENT_AFTER_RECOVER';
 
-    public static function mapStatus()
+    /**
+     * {@inheritdoc}
+     *
+     * @return ActiveQuery
+     */
+    public static function find()
     {
-        return [
-            static::STATUS_ACTIVE   => 'Активный',
-            static::STATUS_DEACTIVE => 'Не активный',
-        ];
+        return Yii::createObject(ActiveQuery::class, [get_called_class()]);
     }
 
-    public const TYPE_RELATION_SINGLE   = 'single';
-    public const TYPE_RELATION_MULTIPLE = 'multiple';
+    /**
+     * Finds ActiveRecord instance(s) by the given condition.
+     * This method is internally called by [[findOne()]] and [[findAll()]].
+     * @param  mixed                  $condition please refer to [[findOne()]] for the explanation of this parameter
+     * @return ActiveQueryInterface   the newly created [[ActiveQueryInterface|ActiveQuery]] instance.
+     * @throws InvalidConfigException if there is no primary key defined
+     * @internal
+     */
+    protected static function findByCondition($condition)
+    {
+        $query = parent::findByCondition($condition);
 
+        // $query->undeleted();
+
+        return $query;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findAll($condition)
+    {
+        if ($condition) {
+            return parent::findAll($condition);
+        }
+
+        return static::find()->undeleted()->all();
+    }
+
+    public function handleSoftDelete()
+    {
+    }
+
+    public function handleRecover()
+    {
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        $this->trigger(static::EVENT_AFTER_SAVE);
+
+        parent::afterSave($insert, $changedAttributes);
+
+        $this->refresh();
+
+        if (isset($changedAttributes['deleted']) && $this->deleted != $changedAttributes['deleted']) {
+            if (intval($this->deleted) === 1) {
+                $this->handleSoftDelete();
+
+                $this->trigger(static::EVENT_BEFORE_DELETE);
+            } else {
+                $this->handleRecover();
+
+                $this->trigger(static::EVENT_AFTER_RECOVER);
+            }
+        }
+    }
+
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            $this->handleSoftDelete();
+
+            $this->trigger(static::EVENT_BEFORE_DELETE);
+
+            return true;
+        }
+
+        return false;
+    }
     public static function getClassByTypeModel($typeModel)
     {
         return match ($typeModel) {
@@ -267,39 +337,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
         return $data;
     }
 
-    public function getOwnRelation($item, $execute = true)
-    {
-        list($modelClassName, $tech_name, $type_id) = $item;
-
-        $name = $item[3] ?? null;
-
-        $query = null;
-
-        if ($type_id == BaseModel::TYPE_RELATION_SINGLE) {
-            if ($name) {
-                $methodName = 'get' . Inflector::camelize($name);
-
-                if (\method_exists($this, $methodName)) {
-                    $query = $this->$methodName();
-                } else {
-                    $query = $modelClassName::find()
-                        ->where([$tech_name => $this->id])
-                        ->apiUndeleted();
-                }
-            } else {
-                $query = $modelClassName::find()
-                    ->where([$tech_name => $this->id])
-                    ->apiUndeleted();
-            }
-        }
-
-        if ($execute) {
-            return $query->all();
-        }
-
-        return $query;
-    }
-
     public function toPlainData($fields = [])
     {
         if (!is_array($fields)) {
@@ -320,7 +357,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
         $allFieldsFlag    = in_array('[[fields]]', $fields);
         $allCompositeFlag = in_array('[[composite]]', $fields);
         $allRelationsFlag = in_array('[[relations]]', $fields);
-        $allFilesFlag     = in_array('[[files]]', $fields);
 
         $filteredData = [];
 
@@ -432,60 +468,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
             }
         }
 
-        foreach ($this->getOwnRelations() as $item) {
-            if (count($item) >= 4) {
-                list($modelClassName, $tech_name, $type_id, $name) = $item;
-
-                if (trim($name) && isset($fields[$name])) {
-                    $fieldsValue = $fields[$name];
-
-                    if (is_array($fieldsValue) && !empty($fieldsValue)) {
-                        $relationQuery = $this->getOwnRelation($item, false);
-
-                        $limit = ArrayHelper::remove($fieldsValue, '{{limit}}', 0);
-
-                        if ($limit > 0) {
-                            $relationQuery->limit($limit);
-                        }
-
-                        $query_count = clone $relationQuery;
-
-                        $sql = $query_count->createCommand()->rawSql;
-
-                        $filteredData[$name . '_sql'] = $sql;
-
-                        $relationValue = $relationQuery->all();
-
-                        if (isset($relationValue) && is_array($relationValue)) {
-                            $filteredData[$name] = [];
-
-                            foreach ($relationValue as $rI => $rV) {
-                                if (is_object($rV)) {
-                                    if ($rV->hasMethod('translateByLang')) {
-                                        $rV->translateByLang($this->currentLang);
-                                    }
-
-                                    $filteredData[$name][] = $rV->toPlainData($fieldsValue);
-                                } else {
-                                    Yii::$app->errorLog::RegisterErrorByErrorException(
-                                        new ErrorException("Can't resolve own relation " . static::class . '::' . $name . '[' . $rI . ']')
-                                    );
-                                }
-                            }
-                        } else {
-                            Yii::$app->errorLog::RegisterErrorByErrorException(
-                                new ErrorException("Can't resolve own relation " . static::class . '::' . $name)
-                            );
-                        }
-                    } else {
-                        Yii::$app->errorLog::RegisterErrorByErrorException(
-                            new ErrorException("Can't resolve own relation " . static::class . '::' . $name . ' - You must set value like: key => [...]')
-                        );
-                    }
-                }
-            }
-        }
-
         return $filteredData;
     }
 
@@ -511,77 +493,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
         static::updateAll($attributes, ['id' => $this->id]);
     }
 
-
-    public static function getTypeForImage()
-    {
-        return false;
-    }
-
-    public static function getAllFileList($entity_id, $typesImage, $_langs = [])
-    {
-        if (!is_array($typesImage)) {
-            $typesImage = [$typesImage];
-        }
-
-        $list = [];
-
-        foreach ($typesImage as $typeImage) {
-            if ($typeImage !== false) {
-                $list = array_merge($list, File::findFiles($entity_id, $typeImage));
-
-                $langList = Language::getList();
-
-                $langs = [];
-
-                foreach ($langList as $_id => $_name) {
-                    $langs[] = $_name;
-                }
-
-                foreach ($langs as $_lang) {
-                    if ($_lang != 'ru') {
-                        /**
-                         * @var \app\models\Category $category
-                         */
-                        $category = \app\models\Category::byAlias('image_lang_' . $_lang);
-
-                        if ($category) {
-                            $category_id = $category->id;
-
-                            $langImages = File::findFiles($entity_id, $typeImage, $category_id);
-
-                            if ($langImages && is_array($langImages) && count($langImages) > 0) {
-                                $list = array_merge($list, $langImages);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $list;
-    }
-
-    public function getFileList()
-    {
-        $typeImage = array_values(static::getFileTypesList()) ?: static::getTypeForImage();
-
-        if ($typeImage !== false) {
-            $langs = [];
-
-            if (static::isTranslateAllowed()) {
-                $langs = $this->getTranslatedLang();
-            }
-
-            return self::getAllFileList($this->id, $typeImage, $langs);
-        }
-
-        return [];
-    }
-
-    public static function getFileTypesList()
-    {
-        return [];
-    }
 
     public function getRelationsValue()
     {
@@ -732,119 +643,9 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
         return false;
     }
 
-    public function beforeDelete()
-    {
-        if (parent::beforeDelete()) {
-            try {
-                $ownRelations = $this->getOwnRelations();
-
-                foreach ($ownRelations as $item) {
-                    list($modelClassName, $tech_name, $type_id) = $item;
-
-                    if ($type_id == BaseModel::TYPE_RELATION_SINGLE) {
-                        foreach ($modelClassName::find()->where([$tech_name => $this->id])->each() as $ownItem) {
-                            $ownItem->{$tech_name} = 0;
-                            $ownItem->save();
-                        }
-                    }
-                }
-            } catch (Exception $ex) {
-                Yii::$app->errorLog::RegisterErrorByErrorException($ex);
-
-                return false;
-            } finally {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function canDelete()
     {
         return true;
-    }
-
-    public function afterSave($insert, $changedAttributes)
-    {
-        $this->trigger(static::EVENT_AFTER_SAVE);
-
-        parent::afterSave($insert, $changedAttributes);
-
-        $this->refresh();
-    }
-
-    public function getFilesFields()
-    {
-        $data = [];
-
-        foreach (static::getFileTypesList() as $fileField => $fileType) {
-            $data[$fileField] = ArrayHelper::toArray(
-                File::findFiles($this->id, $fileType),
-                [File::class => [
-                    'id',
-                    'url',
-                    'base_name',
-                ]]
-            );
-        }
-
-        return $data;
-    }
-
-    public static $slugAfterInsert = true;
-    public static $slugAfterUpdate = true;
-
-    public function slugFields(): array
-    {
-        return [];
-    }
-
-    public function getSlug(): string
-    {
-        return $this->generateSlug();
-    }
-
-    public function generateSlug($customValue = null): string
-    {
-        $baseList = [];
-
-        if (!empty($customValue)) {
-            if (is_string($customValue)) {
-                $baseList = [
-                    trim($customValue),
-                ];
-            } elseif (is_array($customValue)) {
-                foreach ($customValue as $value) {
-                    $baseList[] = trim($value);
-                }
-            }
-        } else {
-            foreach ($this->slugFields() as $field) {
-                $baseList[] = trim($this->{$field});
-            }
-        }
-
-        $base = trim(implode(' ', $baseList));
-
-        // $seoAlias = Inflector::transliterate($base, "Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();");
-        $seoAlias = Inflector::transliterate($base, 'Russian-Latin/BGN');
-        $seoAlias = Inflector::slug($seoAlias);
-
-        return trim(preg_replace('/-+/', '-', $seoAlias), '-');
-    }
-
-    public function getIsInactive(): bool
-    {
-        if ($this->hasAttribute('status_id') && $this->status_id == static::STATUS_DEACTIVE) {
-            return true;
-        }
-
-        if ($this->hasAttribute('activity') && $this->activity == static::STATUS_DEACTIVE) {
-            return true;
-        }
-
-        return false;
     }
 
     public function getIsDeleted(): bool
@@ -854,11 +655,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
         }
 
         return false;
-    }
-
-    public function getIsEnabled(): bool
-    {
-        return !$this->isDeleted && !$this->isInActive;
     }
 
     /**
@@ -879,16 +675,6 @@ class BaseModel extends \BoltSystem\Yii2Logs\log\base\component\ActiveRecord
     public static function configureFields()
     {
         return null;
-    }
-
-    protected function resolveFieldRelation($name, $value)
-    {
-        if ($value instanceof ActiveQueryInterface) {
-            $this->setRelationDependencies($name, $value);
-            return $this->_related[$name] = $value->findFor($name, $this);
-        }
-
-        return $value;
     }
 
     public function __get($name)

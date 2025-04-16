@@ -11,12 +11,7 @@ use app\models\ErrorLog;
 
 class LogController extends \BoltSystem\Yii2Logs\log\base\controllers\BaseController
 {
-    public $rules = [
-        [
-            'allow'   => true,
-            'actions' => ['page-corrupted'],
-        ],
-    ];
+    public $rules = [];
 
     public function getModel()
     {
