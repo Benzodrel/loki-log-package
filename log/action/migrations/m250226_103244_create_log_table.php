@@ -6,7 +6,8 @@ namespace BoltSystem\Yii2Logs\log\action\migrations;
 /**
  * Handles the creation of table `{{%log}}`.
  */
-class m250226_103244_create_log_table
+use yii\db\Migration;
+class m250226_103244_create_log_table extends Migration
 {
     /**
      * {@inheritdoc}

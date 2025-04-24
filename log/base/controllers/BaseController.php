@@ -4,10 +4,11 @@
 namespace BoltSystem\Yii2Logs\log\base\controllers;
 
 use BoltSystem\Yii2Logs\log\action\drivers\LogDb;
+use Yii;
 
 class BaseController extends \yii\web\Controller
 {
-    public $layout = '@vendor/BoltSystem/Yii2Logs/log/base/views/layouts';
+    public $layout = '@vendor/bolt-system/yii2-logs/log/base/views/layouts/backend';
 
     public $rulesName = 'base';
 

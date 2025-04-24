@@ -1,3 +1,8 @@
+# Установка пакета
+```
+composer require bolt-system/yii2-logs
+```
+
 # Настройки подключения к Loki:
    1 - Добавить в config/params.json переменные
 ```
@@ -102,3 +107,14 @@ if (isset($params['log']) && $params['log'] === 'loki') {
             'class' => BoltSystem\Yii2Logs\log\event\EventLog::class,
         ],
 ```
+
+# Миграции таблиц:
+В библиотеке содержаться файлы миграций таблиц для соответствующих логов:<br>
+Для их использования используйте консольные команды:
+```
+yii migrate --migrationPath=@vendor/BoltSystem/Yii2Logs/log/action/migrations
+yes | php yii migrate --migrationPath=@error-migrations
+yii migrate --migrationPath=@vendor/bolt-system/yii2-logs/log/event/migrations 
+```
+
+

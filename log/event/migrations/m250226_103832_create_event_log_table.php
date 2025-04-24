@@ -3,10 +3,12 @@
 
 namespace BoltSystem\Yii2Logs\log\event\migrations;
 
+use yii\db\Migration;
+
 /**
  * Handles the creation of table `{{%event_log}}`.
  */
-class m250226_103832_create_event_log_table
+class m250226_103832_create_event_log_table extends Migration
 {
     /**
      * {@inheritdoc}
