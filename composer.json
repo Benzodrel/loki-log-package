@@ -9,11 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "BoltSystem\\Yii2Logs\\log\\action\\": "log/action/",
-            "BoltSystem\\Yii2Logs\\log\\error\\": "log/error/",
-            "BoltSystem\\Yii2Logs\\log\\event\\": "log/event/",
-            "BoltSystem\\Yii2Logs\\log\\": "log/",
-            "BoltSystem\\Yii2Logs\\log\\target\\": "log/target/"
+            "boltSystem\\yii2Logs\\src\\": ""
         }
     },
     "authors": [

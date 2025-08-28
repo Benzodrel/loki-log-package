@@ -1,0 +1,76 @@
+<?php
+
+const TYPE_UNKNOW           = 0;
+const TYPE_CATEGORY         = 1;
+const TYPE_DICTIONARY       = 2;
+const TYPE_FILE             = 3;
+const TYPE_MAIL             = 4;
+const TYPE_USER             = 1000;
+const TYPE_PUBLICATION      = 1010;
+const TYPE_CATALOG          = 1020;
+const TYPE_CATALOG_CATEGORY = 1030;
+const TYPE_DELIVERY_TYPE    = 1040;
+const TYPE_TECH_ORDER       = 1050;
+const TYPE_FAST_ORDER       = 1060;
+const TYPE_PAYMENT_TYPE     = 1070;
+const TYPE_WARRANTY         = 1080;
+
+return [
+    'controllerRules' => [
+        [
+            'allow' => true,
+            'roles' => ['@'],
+        ],
+    ],
+    'actionLogParams' => [
+        'getMapClassNameToTypeId' => [
+            'app\models\Category'                 => TYPE_CATEGORY,
+            'app\models\Dictionary'               => TYPE_DICTIONARY,
+            'app\models\File'                     => TYPE_FILE,
+            'app\models\Mail'                     => TYPE_MAIL,
+            'app\models\User'                     => TYPE_USER,
+            'app\models\Publication'              => TYPE_PUBLICATION,
+            'app\models\Catalog'                  => TYPE_CATALOG,
+            'app\models\CatalogCategory'          => TYPE_CATALOG_CATEGORY,
+            'app\models\DeliveryType'             => TYPE_DELIVERY_TYPE,
+            'app\models\TechOrder'                => TYPE_TECH_ORDER,
+            'app\models\FastOrder'                => TYPE_FAST_ORDER,
+            'app\models\dictionaries\PaymentType' => TYPE_PAYMENT_TYPE,
+            'app\models\dictionaries\Warranty'    => TYPE_WARRANTY,
+        ],
+
+        'getMapTypeIdToTypename' => [
+            TYPE_UNKNOW           => 'Неизвестно',
+            TYPE_CATEGORY         => 'Категория',
+            TYPE_DICTIONARY       => 'Элемент словаря',
+            TYPE_FILE             => 'Файл',
+            TYPE_MAIL             => 'Письмо',
+            TYPE_USER             => 'Пользователи',
+            TYPE_PUBLICATION      => 'Статьи',
+            TYPE_CATALOG          => 'Товары',
+            TYPE_CATALOG_CATEGORY => 'Категория товара',
+            TYPE_DELIVERY_TYPE    => 'Способ/пункт доставки',
+            TYPE_TECH_ORDER       => 'Технический заказ',
+            TYPE_FAST_ORDER       => 'Быстрый заказ',
+            TYPE_PAYMENT_TYPE     => 'Способ оплаты',
+            TYPE_WARRANTY         => 'Вид гарантии',
+        ],
+
+        'getMapTypeIdToLinkEdit' => [
+            TYPE_UNKNOW           => '#',
+            TYPE_CATEGORY         => '/category/update',
+            TYPE_DICTIONARY       => '/dictionary/update',
+            TYPE_FILE             => '/file/update',
+            TYPE_MAIL             => '/mail/update',
+            TYPE_USER             => '/user/update',
+            TYPE_PUBLICATION      => '/publication/update',
+            TYPE_CATALOG          => '/catalog/update',
+            TYPE_CATALOG_CATEGORY => '/catalog-category/update',
+            TYPE_DELIVERY_TYPE    => '/delivery-type/update',
+            TYPE_TECH_ORDER       => '/tech-order/update',
+            TYPE_FAST_ORDER       => '/fast-order/update',
+            TYPE_PAYMENT_TYPE     => '/payment-type/update',
+            TYPE_WARRANTY         => '/warranty/update',
+        ],
+    ],
+];

@@ -8,7 +8,7 @@ composer require bolt-system/yii2-logs
 ```
    "log": "loki",
    "log": "db",
-    "loki": {
+   "loki": {
         "enabled" : true,
         "lokiUrl" : "http://loki:3100/loki/api/v1/push",
         "user": "loki",
@@ -25,7 +25,7 @@ if (isset($params['log']) && $params['log'] === 'loki') {
    'flushInterval' => 100,
    'targets'       => [
    [
-   'class'   => BoltSystem\Yii2Logs\log\target\CustomLokiLogTarget::class,
+   'class'   => boltSystem\yii2Logs\src\target\CustomLokiLogTarget::class,
    'enabled' => $params['loki']['enabled'],
    'prefix' => function ($message) {
 
@@ -93,28 +93,44 @@ if (isset($params['log']) && $params['log'] === 'loki') {
 'bootstrap' => ['Log', 'errorLog', 'actionLog', 'eventLog', 'profiler'];
 ```
 и так же в components 
-```
+```php
  'errorLog' => [
-            'class' => BoltSystem\Yii2Logs\log\error\ErrorLog::class,
+            'class' => boltSystem\yii2Logs\src\error\ErrorLog::class,
         ],
         'Log' => [
-            'class' => BoltSystem\Yii2Logs\log\action\Log::class,
+            'class' => boltSystem\yii2Logs\src\action\Log::class,
         ],
         'profiler' => [
-            'class' => BoltSystem\Yii2Logs\log\Profiler::class,
+            'class' => boltSystem\yii2Logs\src\Profiler::class,
         ],
         'eventLog' => [
-            'class' => BoltSystem\Yii2Logs\log\event\EventLog::class,
+            'class' => boltSystem\yii2Logs\src\event\EventLog::class,
         ],
+```
+В components
+```
+'errorHandler' => [
+'class'      => BoltSystem\Yii2Logs\log\error\handlers\ErrorHandler::class,
+],
+```
+Так же аналогично можно подключить логирование консольных команд за исключением errorHandler, класс для него BoltSystem\Yii2Logs\src\error\handlers\ErrorHandlerConsole::class,
+
+Используйте файл log_params чтобы передать правила доступа контроллеров и мапинг классов для action лога
+Пример файла log_params.php.example, файл закинуть в папку config и в main.php добавить
+```
+$log_params     = require __DIR__ . '/log_params.php';
+```
+и в $config добавить строку
+```
+
 ```
 
 # Миграции таблиц:
-В библиотеке содержаться файлы миграций таблиц для соответствующих логов:<br>
+В библиотеке содержатся файлы миграций таблиц для соответствующих логов:<br>
 Для их использования используйте консольные команды:
+```bash
+php yii migrate --migrationPath=@event-migrations
+php yii migrate --migrationPath=@error-migrations
+php yii migrate --migrationPath=@action-migrations
 ```
-yii migrate --migrationPath=@vendor/BoltSystem/Yii2Logs/log/action/migrations
-yes | php yii migrate --migrationPath=@error-migrations
-yii migrate --migrationPath=@vendor/bolt-system/yii2-logs/log/event/migrations 
-```
-
 
