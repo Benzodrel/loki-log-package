@@ -1,6 +1,6 @@
 <?php
 
-namespace boltSystem\yii2Logs\src\src\helpers;
+namespace boltSystem\yii2Logs\src\helpers;
 
 use boltSystem\yii2Logs\src\action\Log;
 use boltSystem\yii2Logs\src\error\ErrorLog;
@@ -103,21 +103,25 @@ class LogConfiguratorBuilder
     public function changeLokiConfig(array $configToChange)
     {
         $this->lokiConfig = array_merge($this->lokiConfig, $configToChange);
+        return $this;
     }
 
     public function setLokiUser(string $user)
     {
         $this->lokiConfig['targets'][0]['lokiAuthUser'] = $user;
+        return $this;
     }
 
     public function setLokiPassword(string $password)
     {
         $this->lokiConfig['targets'][0]['lokiAuthPassword'] = $password;
+        return $this;
     }
 
     public function setLokiPushUrl(string $url)
     {
         $this->lokiConfig['targets'][0]['lokiPushUrl'] = $url;
+        return $this;
     }
 
     public function build()
@@ -140,23 +144,27 @@ class LogConfiguratorBuilder
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $errorLogParams;
         $this->config['components']['errorHandler'] = $errorHandlerParams;
+        return $this;
     }
 
     public function addActionLog(string $componentName = self::ACTION_LOG_COMPONENT, array $params = ['class' => Log::class])
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;
+        return $this;
     }
 
     public function addEventLog(string $componentName = self::EVENT_LOG_COMPONENT, array $params = ['class' => EventLog::class])
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;
+        return $this;
     }
 
     public function addProfiler(string $componentName = self::PROFILER_COMPONENT, array $params = ['class' => Profiler::class])
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;
+        return $this;
     }
 }

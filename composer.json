@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "boltSystem\\yii2Logs\\src\\": ""
+            "boltSystem\\yii2Logs\\": ""
         }
     },
     "authors": [
