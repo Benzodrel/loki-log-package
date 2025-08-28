@@ -1,7 +1,7 @@
 <?php
 
 
-namespace BoltSystem\Yii2Logs\log\base\model;
+namespace boltSystem\yii2Logs\src\base\model;
 
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
