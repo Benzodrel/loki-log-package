@@ -25,7 +25,7 @@ final class EventLog extends BaseObject
 
     public static function getDriverName()
     {
-        return Yii::$app->params['log'] ?? static::LOG_DB;
+        return Yii::$app->params['event_log_driver'] ?? static::LOG_DB;
     }
 
     public static function getDriver()

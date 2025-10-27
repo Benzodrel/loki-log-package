@@ -38,7 +38,7 @@ final class Log extends BaseObject
 
     public static function getDriverName(): string
     {
-        return Yii::$app->params['log'] ?? static::LOG_DB;
+        return Yii::$app->params['action_log_driver'] ?? static::LOG_DB;
     }
 
     public static function getDriver()

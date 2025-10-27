@@ -21,27 +21,27 @@ class EventLogLoki extends EventLogDb
             'log_type'    => 'event',
         ];
 
-        $allSuccess = true;
-        $oneSuccess = false;
+        if (!count($to_list) && isset($data['parent_id'])) {
+            $newLog = ['status_id' => EventLogLoki::STATUS_ERROR];
+            Yii::info($newLog, 'Event');
+            return;
+        }
+
+        if (isset($data['parent_id'])) {
+            $newLog['parent_id'] = $data['parent_id'];
+        } else {
+            $newLog['parent_id'] = null;
+        }
 
         foreach ($to_list as $_item) {
-            if (!$_item['status']) {
-                $allSuccess = false;
-            } else {
-                $oneSuccess = true;
+            if ($_item['value'] == 'Error') {
+                $success = false;
             }
         }
 
-        if (!$allSuccess && !$oneSuccess) {
-            $newLog = ['status_id' => EventLogLoki::STATUS_ERROR];
-        }
-        if (!$allSuccess && $oneSuccess) {
-            $newLog = ['status_id' => EventLogLoki::STATUS_BOTH];
-        }
-        if ($allSuccess && $oneSuccess) {
+        if ($success) {
             $newLog = ['status_id' => EventLogLoki::STATUS_SUCCESS];
-        }
-        if (!count($to_list)) {
+        } else {
             $newLog = ['status_id' => EventLogLoki::STATUS_ERROR];
         }
 

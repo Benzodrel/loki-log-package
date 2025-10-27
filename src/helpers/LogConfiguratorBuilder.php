@@ -23,6 +23,8 @@ class LogConfiguratorBuilder
     public $config;
     public $logType;
 
+    private array $availableDrivers = [self::LOKI, self::DB];
+
     public array $lokiConfig = [];
 
     public function __construct(string $logType, array $config)
@@ -30,14 +32,29 @@ class LogConfiguratorBuilder
         $this->config = $config;
         $this->logType = $logType;
 
-        if ($logType == self::LOKI) {
-            $this->lokiConfig = $this->lokiDefaultConfig();
-            $this->config['bootstrap'][] = 'log';
-            $this->config['components']['log'] = $this->lokiConfig;
+        if(!in_array($logType, $this->availableDrivers)){
+            throw new \Exception($logType . ' is not a valid log type, must be one of:' . implode(',', $this->availableDrivers));
+        }
+
+        switch ($logType) {
+            case self::LOKI:
+                $this->lokiConfig = $this->lokiDefaultConfig();
+                $this->config['bootstrap'][] = 'log';
+                $this->config['components']['log'] = $this->lokiConfig;
+                $this->config['params']['error_log_driver'] = self::LOKI;
+                $this->config['params']['action_log_driver'] = self::LOKI;
+                $this->config['params']['event_log_driver'] = self::LOKI;
+                break;
+
+            case self::DB:
+                $this->config['params']['error_log_driver'] = self::DB;
+                $this->config['params']['action_log_driver'] = self::DB;
+                $this->config['params']['event_log_driver'] = self::DB;
+                break;
         }
     }
 
-    private function lokiDefaultConfig()
+    private function lokiDefaultConfig(): array
     {
         return [
             'traceLevel' => 3,
@@ -100,31 +117,37 @@ class LogConfiguratorBuilder
         ];
     }
 
-    public function changeLokiConfig(array $configToChange)
+    public function changeLokiConfig(array $configToChange): LogConfiguratorBuilder
     {
         $this->lokiConfig = array_merge($this->lokiConfig, $configToChange);
         return $this;
     }
 
-    public function setLokiUser(string $user)
+    public function setLogsParams(array $logsParams)
+    {
+        $this->config['params'] = array_merge($this->config['params'], $logsParams);
+        return $this;
+    }
+
+    public function setLokiUser(string $user): LogConfiguratorBuilder
     {
         $this->lokiConfig['targets'][0]['lokiAuthUser'] = $user;
         return $this;
     }
 
-    public function setLokiPassword(string $password)
+    public function setLokiPassword(string $password): LogConfiguratorBuilder
     {
         $this->lokiConfig['targets'][0]['lokiAuthPassword'] = $password;
         return $this;
     }
 
-    public function setLokiPushUrl(string $url)
+    public function setLokiPushUrl(string $url): LogConfiguratorBuilder
     {
         $this->lokiConfig['targets'][0]['lokiPushUrl'] = $url;
         return $this;
     }
 
-    public function build()
+    public function build(): array
     {
         if ($this->logType == self::LOKI) {
             $this->config['bootstrap'][] = 'log';
@@ -139,7 +162,7 @@ class LogConfiguratorBuilder
         string $componentName = self::ERROR_LOG_COMPONENT,
         array  $errorLogParams = ['class' => ErrorLog::class],
         array  $errorHandlerParams = ['class' => ErrorHandler::class],
-    )
+    ): LogConfiguratorBuilder
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $errorLogParams;
@@ -147,21 +170,56 @@ class LogConfiguratorBuilder
         return $this;
     }
 
-    public function addActionLog(string $componentName = self::ACTION_LOG_COMPONENT, array $params = ['class' => Log::class])
+    public function addActionLog(string $componentName = self::ACTION_LOG_COMPONENT, array $params = ['class' => Log::class]): LogConfiguratorBuilder
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;
         return $this;
     }
 
-    public function addEventLog(string $componentName = self::EVENT_LOG_COMPONENT, array $params = ['class' => EventLog::class])
+    public function setActionLogDriver(string $driver): LogConfiguratorBuilder
+    {
+        if(in_array($driver, $this->availableDrivers)){
+            $this->config['params']['action_log_driver'] = $driver;
+            return $this;
+        }
+       throw new \Exception($driver . ' is not a valid driver value, must be one of:' . implode(',', $this->availableDrivers));
+    }
+
+    public function setErrorLogDriver(string $driver): LogConfiguratorBuilder
+    {
+        if(in_array($driver, $this->availableDrivers)){
+            $this->config['params']['error_log_driver'] = $driver;
+            return $this;
+        }
+        throw new \Exception($driver . ' is not a valid driver value, must be one of:' . implode(',', $this->availableDrivers));
+    }
+
+    public function setEventLogDriver(string $driver): LogConfiguratorBuilder
+    {
+        if(in_array($driver, $this->availableDrivers)){
+            $this->config['params']['event_log_driver'] = $driver;
+            return $this;
+        }
+        throw new \Exception($driver . ' is not a valid driver value, must be one of:' . implode(',', $this->availableDrivers));
+    }
+
+    public function addEventLog
+    (
+        string $componentName = self::EVENT_LOG_COMPONENT,
+        array $params = ['class' => EventLog::class]
+    ): LogConfiguratorBuilder
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;
         return $this;
     }
 
-    public function addProfiler(string $componentName = self::PROFILER_COMPONENT, array $params = ['class' => Profiler::class])
+    public function addProfiler
+    (
+        string $componentName = self::PROFILER_COMPONENT,
+        array $params = ['class' => Profiler::class]
+    ): LogConfiguratorBuilder
     {
         $this->config['bootstrap'][] = $componentName;
         $this->config['components'][$componentName] = $params;

@@ -32,7 +32,7 @@ final class ErrorLog extends BaseObject implements BootstrapInterface
                 'class' => \boltSystem\yii2Logs\src\error\controllers\LogsErrorController::class,
             ];
             Yii::$app->urlManager->addRules([
-                '/logs-error/<action>' => 'logs-error/<action>',
+                '/backend/logs/error/<action>' => 'logs-error/<action>',
             ], false);
         }
         Yii::setAlias('@error-migrations', '@vendor/bolt-system/yii2-logs/src/error/migrations');
@@ -40,7 +40,7 @@ final class ErrorLog extends BaseObject implements BootstrapInterface
 
     public static function getDriverName()
     {
-        return Yii::$app->params['log'] ?? static::LOG_DB;
+        return Yii::$app->params['error_log_driver'] ?? static::LOG_DB;
     }
 
     public static function getDriver()

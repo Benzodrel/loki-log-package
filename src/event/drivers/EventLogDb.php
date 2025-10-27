@@ -56,6 +56,10 @@ class EventLogDb extends \boltSystem\yii2Logs\src\base\model\BaseModel
     {
         $newLog = new EventLogDb();
 
+        if (isset($data['parent_id'])) {
+            $newLog->parent_id = $data['parent_id'];
+        }
+
         $newLog->type     = $type;
         $newLog->to_list  = $to_list;
         $newLog->data     = $data;
@@ -64,23 +68,29 @@ class EventLogDb extends \boltSystem\yii2Logs\src\base\model\BaseModel
 
         $newLog->date_create = date('Y/m/d H:i:s', time());
 
-        $allSuccess = true;
-        $oneSuccess = false;
+        $success = true;
+
+        if (!count($to_list)) {
+            $newLog->status_id = EventLogDb::STATUS_ERROR;
+            $newLog->save();
+            return $newLog->id;
+        }
 
         foreach ($to_list as $_item) {
-            if (!$_item['status']) {
-                $allSuccess = false;
-            } else {
-                $oneSuccess = true;
+            if ($_item['value'] == 'Error') {
+                $success = false;
             }
         }
 
-        if (!$allSuccess && !$oneSuccess) $newLog->status_id = EventLogDb::STATUS_ERROR;
-        if (!$allSuccess && $oneSuccess)  $newLog->status_id = EventLogDb::STATUS_BOTH;
-        if ($allSuccess && $oneSuccess)   $newLog->status_id = EventLogDb::STATUS_SUCCESS;
-        if (!count($to_list))           $newLog->status_id = EventLogDb::STATUS_ERROR;
+        if ($success) {
+            $newLog->status_id = EventLogDb::STATUS_SUCCESS;
+        } else {
+            $newLog->status_id = EventLogDb::STATUS_ERROR;
+        }
 
         $newLog->save();
+
+        return $newLog->id;
     }
 
     public static function settingForIndex()
